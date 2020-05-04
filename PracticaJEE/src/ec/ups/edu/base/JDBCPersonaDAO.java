@@ -2,14 +2,16 @@ package ec.ups.edu.base;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import ec.edu.ups.modelo.Telefono;
 import ec.edu.ups.modelo.Usuario;
+import ec.ups.edu.controlador.DAOFactory;
 import ec.ups.edu.controlador.PersonaDAO;
 
 public class JDBCPersonaDAO extends JDBCGenericDAO<Usuario, Integer> implements PersonaDAO {
-
+	List<Usuario> list = new ArrayList<Usuario>();
 	@Override
 	public void createTable() {
 	
@@ -58,7 +60,22 @@ public class JDBCPersonaDAO extends JDBCGenericDAO<Usuario, Integer> implements 
 	@Override
 	public List<Usuario> find() {
 		// TODO Auto-generated method stub
-		return null;
+		
+		ResultSet rs = conexionUno.query("SELECT * FROM usuario");
+		try {
+			while (rs.next()) {
+			
+			Usuario usuario = new Usuario(rs.getString("cedula"), rs.getString("nombre")
+					,rs.getString("apellido"), rs.getString("correo"), rs.getString("contrasena"));
+				
+				System.out.println(usuario.toString());
+				list.add(usuario);
+			}
+
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCPersonaDAO:find): " + e.getMessage());
+		}
+		return list;
 	}
 
 	@Override

@@ -49,7 +49,7 @@ public class ContextJDBC {
 			try {
 				return this.statement.executeQuery(sql);
 			} catch (SQLException e) {
-				System.out.println(">>>WARNING (JDBC:query): ---" + sql + "---" + e);
+				System.out.println(">>>WARNING (JDBC mala sentencia:query): ---" + sql + "---" + e);
 			}
 			return null;
 		}

@@ -17,10 +17,10 @@ public class main {
 		s.setCorreo("sdk");
 		s.setContrasenia("123");
 		//per.create(s);
-		//per.read("1724934110");
+		per.find();
 		//per.update(s);
 		
-		TelefonoDAO tel= new JDBCTelefonoDAO();
+		/*TelefonoDAO tel= new JDBCTelefonoDAO();
 		Telefono t =new Telefono();
 		t.setCodigo(1);
 		t.setNombre("Movi");
@@ -31,7 +31,7 @@ public class main {
 		
 		     tel.update(t);
 		    tel.delete(t);
-		    tel.read2(1);
+		    tel.read2(1);*/
 	}
 
 }
