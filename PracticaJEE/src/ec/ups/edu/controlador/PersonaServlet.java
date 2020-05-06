@@ -1,6 +1,7 @@
 package ec.ups.edu.controlador;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.jasper.tagplugins.jstl.core.Out;
+
 import ec.edu.ups.modelo.Usuario;
 import ec.ups.edu.base.JDBCPersonaDAO;
 
@@ -18,7 +21,8 @@ import ec.ups.edu.base.JDBCPersonaDAO;
  */
 @WebServlet("/PersonaServlet")
 public class PersonaServlet extends HttpServlet {
-	JDBCPersonaDAO dao=  new JDBCPersonaDAO();		
+	PersonaDAO dao = DAOFactory.getFactory().getPersonaDAO();
+		
 	Usuario p=new Usuario();
 	private static final long serialVersionUID = 1L;
        
@@ -45,20 +49,25 @@ public class PersonaServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		String accion=request.getParameter("accion");
 		
-		switch (accion) {
-		case "Listar":    
-			
-			List<Usuario>lista=new ArrayList();
-			lista=dao.find();
-			
-				request.setAttribute("lista",lista );
-				getServletContext().getRequestDispatcher("JSPs/Usuario").forward(request, response);
-			
-			break;
 
-		default:
-			break;
-		}
+			
+				switch (accion) {
+				case "Listar":    
+					
+					List<Usuario>lista=dao.find();
+					
+						request.setAttribute("listar", lista);
+						request.getRequestDispatcher("/JSPs/UsuarioListar.jsp").forward(request, response);
+			
+				
+					break;
+
+				default:
+					break;
+				}
+			
+			
+	
 		
 	}
 
