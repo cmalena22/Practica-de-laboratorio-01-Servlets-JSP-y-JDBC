@@ -23,7 +23,7 @@ public class JDBCTelefonoDAO extends JDBCGenericDAO<Telefono, Integer> implement
 	@Override
 	public void create(Telefono telefono) {
 		conexionDos.update("INSERT Telefono VALUES (" + telefono.getCodigo() 
-		+ ", '" + telefono.getNombre()+ " '" 
+		+ ", '" + telefono.getNumero()+ " '" 
 		+ ", '" +telefono.getTipo()+ "' "
 		+ ", '"	+telefono.getOperadora()+ "', "
 		+telefono.getUsuario().getCedula() + ")");
@@ -36,7 +36,7 @@ public class JDBCTelefonoDAO extends JDBCGenericDAO<Telefono, Integer> implement
 	@Override
 	public void update(Telefono telefono) {
 		// TODO Auto-generated method stub
-		conexionDos.update("UPDATE Telefono SET  nombre = '" + telefono.getNombre() + "',tipo = '"
+		conexionDos.update("UPDATE Telefono SET  nombre = '" + telefono.getNumero() + "',tipo = '"
 														    	+telefono.getTipo() +"',operadora='"	
 														    	+telefono.getOperadora()
 														+ "' WHERE id = " + telefono.getCodigo());
