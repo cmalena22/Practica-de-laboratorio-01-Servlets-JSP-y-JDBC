@@ -1,5 +1,8 @@
 @charset "ISO-8859-1";
- nav {
+.container{
+	
+}
+/* nav {
 	width: 15%;
 	float: left;
 	margin: 0 0 0 1.0%;
@@ -146,12 +149,12 @@ form {
     border: 1px solid #999;
  }
  
- input:focus, textarea:focus {
+ /*input:focus, textarea:focus {
     /* Para dar un pequeño destaque en elementos activos*/
-    border-color: #000;
+    border-color: #000;*/
  }
  
- textarea {
+ /*textarea {
     /* Para alinear campos de texto multilínea con sus labels */
     vertical-align: top;
  
@@ -160,6 +163,6 @@ form {
  
     /* Para permitir a los usuarios cambiar el tamaño de cualquier textarea verticalmente
         No funciona en todos los navegadores */
-    resize: vertical;
+ /*   resize: vertical;*/
  }
  
