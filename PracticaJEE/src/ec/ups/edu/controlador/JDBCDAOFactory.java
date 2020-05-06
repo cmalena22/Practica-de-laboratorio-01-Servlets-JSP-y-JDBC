@@ -1,5 +1,7 @@
 package ec.ups.edu.controlador;
 
+import ec.ups.edu.base.JDBCPersonaDAO;
+
 public class JDBCDAOFactory extends DAOFactory{
 
 	@Override
@@ -11,7 +13,7 @@ public class JDBCDAOFactory extends DAOFactory{
 	@Override
 	public PersonaDAO getPersonaDAO() {
 		// TODO Auto-generated method stub
-		return null;
+		return new JDBCPersonaDAO();
 	}
 
 	@Override
