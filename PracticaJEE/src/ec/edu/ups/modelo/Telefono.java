@@ -5,16 +5,16 @@ import java.io.Serializable;
 public class Telefono implements Serializable  {
 	private static final long serialVersionUID = 1L;
 	public int codigo;
-	public String nombre;
+	public String numero;
 	public String tipo ;
 	public String operadora;
 	public Usuario usuario;
 	public Telefono() {
 		
 	}		
-	public Telefono(int codigo, String nombre, String tipo, String operadora) {
+	public Telefono(int codigo, String numero, String tipo, String operadora) {
 		this.codigo = codigo;
-		this.nombre = nombre;
+		this.numero = numero;
 		this.tipo = tipo;
 		this.operadora = operadora;
 	}
@@ -24,11 +24,11 @@ public class Telefono implements Serializable  {
 	public void setCodigo(int codigo) {
 		this.codigo = codigo;
 	}
-	public String getNombre() {
-		return nombre;
+	public String getNumero() {
+		return numero;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setNumero(String numero) {
+		this.numero = numero;
 	}
 	public String getTipo() {
 		return tipo;
@@ -51,7 +51,7 @@ public class Telefono implements Serializable  {
 	}
 	@Override
 	public String toString() {
-		return "Telefono [codigo=" + codigo + ", nombre=" + nombre + ", tipo=" + tipo + ", operadora=" + operadora
+		return "Telefono [codigo=" + codigo + ",numero=" + numero + ", tipo=" + tipo + ", operadora=" + operadora
 				+ ", usuario=" + usuario + "]";
 	}
 	
