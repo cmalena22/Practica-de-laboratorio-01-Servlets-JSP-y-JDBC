@@ -11,7 +11,7 @@ import ec.ups.edu.controlador.DAOFactory;
 import ec.ups.edu.controlador.PersonaDAO;
 
 public class JDBCPersonaDAO extends JDBCGenericDAO<Usuario, Integer> implements PersonaDAO {
-	List<Usuario> list = new ArrayList<Usuario>();
+	
 	@Override
 	public void createTable() {
 	
@@ -60,7 +60,7 @@ public class JDBCPersonaDAO extends JDBCGenericDAO<Usuario, Integer> implements 
 	@Override
 	public List<Usuario> find() {
 		// TODO Auto-generated method stub
-		
+		List<Usuario> list = new ArrayList<Usuario>();
 		ResultSet rs = conexionUno.query("SELECT * FROM usuario");
 		try {
 			while (rs.next()) {
@@ -83,8 +83,30 @@ public class JDBCPersonaDAO extends JDBCGenericDAO<Usuario, Integer> implements 
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
+	int r=0;
+	public int validar(Usuario p) {
+		ResultSet rs = conexionUno.query("SELECT * FROM usuario where correo='"+p.getCorreo()+"'"+"and contrasena='"+p.getContrasenia()+"'");
+		try {
+			while (rs.next()) {
+				r=r+1;
+				p.setNombre(rs.getString("correo"));
+				p.setContrasenia(rs.getString("contrasenia"));
+		}
+				
+				System.out.println(r);
+			
+			if (r==1) {
+				return 1;
+			}else {
+				return 0;
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return 0;
+		
+	}
 	
 	
 }
