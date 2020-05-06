@@ -8,7 +8,7 @@
 </head>
 <body>
    <h1>Formulario</h1>
-          <form action="../../config/creacion_usuarios.php" method="post" >
+          <form action="../InsertarTelefonoServlet" method="post" >
                 <label for="numero">Numero:</label>
                 <input type="text" id="numero" name="numero" minlength="10" maxlength="10" "/>
                 <br>
