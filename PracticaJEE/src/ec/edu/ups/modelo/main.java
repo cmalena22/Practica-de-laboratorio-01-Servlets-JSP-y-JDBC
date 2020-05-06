@@ -2,6 +2,7 @@ package ec.edu.ups.modelo;
 
 import ec.ups.edu.base.JDBCPersonaDAO;
 import ec.ups.edu.base.JDBCTelefonoDAO;
+import ec.ups.edu.controlador.DAOFactory;
 import ec.ups.edu.controlador.PersonaDAO;
 import ec.ups.edu.controlador.TelefonoDAO;
 
@@ -9,15 +10,19 @@ public class main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		PersonaDAO per = new JDBCPersonaDAO();
+		PersonaDAO dao = DAOFactory.getFactory().getPersonaDAO();
+		JDBCPersonaDAO p= new JDBCPersonaDAO();
 		Usuario s= new Usuario();
 		s.setCedula("1724934110");
 		s.setNombre("malena");
 		s.setApellido("cajia");
 		s.setCorreo("sdk");
 		s.setContrasenia("123");
+		Usuario s2= new Usuario();
 		//per.create(s);
-		per.find();
+		//dao.find();
+		
+		p.validar(s2);
 		//per.update(s);
 		
 		/*TelefonoDAO tel= new JDBCTelefonoDAO();
