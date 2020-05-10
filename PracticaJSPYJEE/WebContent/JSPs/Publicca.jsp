@@ -53,21 +53,27 @@
  		<table class="table table-hover">
  		<thead>
  			<tr>
- 			 <th> ID</th>
+ 			
 			    <th> Numero</th>
  				<th> Tipo</th>
 				<th> Operadora </th>
 					<th> Cedula </th>
+						<th> Nombre </th>
+							<th>Apellido </th>
+								<th> Correo </th>
 				  </tr>
   </thead>  
   <tbody>  
   <c:forEach var="tel" items="${telefono}">  
   <tr>
-  <td>${tel.getCodigo()}</td>
+ 
   	<td>${tel.getNumero()}</td>
  	<td>${tel.getTipo()}</td>
  	<td>${tel.getOperadora()}</td> 
- 	<td>${tel.getUsuario_cedula()}</td> 
+ 	<td>${tel.getUsuario_cedula().getCedula()}</td> 
+ 	<td>${tel.getUsuario_cedula().getNombre()}</td> 
+ 	<td>${tel.getUsuario_cedula().getApellido()}</td> 
+ 	<td>${tel.getUsuario_cedula().getCorreo()}</td>  	
   </tr>
     </c:forEach>
    </tbody>
@@ -75,3 +81,4 @@
   </div>
 </body>
 </html>
+
