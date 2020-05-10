@@ -31,6 +31,22 @@
       </li>
      
     </ul>
+     <div class="dropdown">
+  <button style="border: none;" class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  ${usuario}
+  </button>
+  
+  <div class="dropdown-menu text-center"  aria-labelledby="dropdownMenuButton" >
+  <img alt="" src="../imagenes/login.png" height="100" width="100" align="center">
+  <a class="dropdown-item" href="#">${name}</a>
+      <a class="dropdown-item" href="#">${apellido}</a>
+    <a class="dropdown-item" href="#">${usuario}</a>
+    <a class="dropdown-item" href="#">${nombre}</a>
+<div class="dropdown-divider"></div>
+	<form action="">
+		<button name="accion" class="dropdown-item" href="#">Salir</button> 
+	</form>
+  </div>
   </div>
 </nav>
    <h1>Formulario</h1>
@@ -47,6 +63,7 @@
                   <input type="text" id="operadora" name="operadora" />
                         
                 <br>
+                <input id="cedula" name="cedula" type="hidden" value="${nombre}">
                   <input type="submit" id="crear" value="Ingresar" name="accion"/>
                
                  
