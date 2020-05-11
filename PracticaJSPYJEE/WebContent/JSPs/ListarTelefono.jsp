@@ -21,16 +21,32 @@
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
       <li class="nav-item active">
-        <a class="nav-link" href="/PracticaJSPYJEE/ListTelefonoServlet?accion=Registrar" >Insertar Telefono</a>
+        <a class="nav-link" href="/PracticaJSPYJEE/InsertarTelefonoServlet?accion=Listar" >Listar Telefono</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/PracticaJSPYJEE/ListTelefonoServlet?accion=Modificar">Modificar Telefono</a>
+        <a class="nav-link" href="/PracticaJSPYJEE/InsertarTelefonoServlet?accion=Modificar">Modificar Telefono</a>
       </li>
        <li class="nav-item">
-        <a class="nav-link" href="/PracticaJSPYJEE/ListTelefonoServlet?accion=Eliminar">Eliminar Telefono</a>
+        <a class="nav-link" href="/PracticaJSPYJEE/InsertarTelefonoServlet?accion=Eliminar">Eliminar Telefono</a>
       </li>
      
     </ul>
+     <div class="dropdown">
+  <button style="border: none;" class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  ${usuario}
+  </button>
+  
+  <div class="dropdown-menu text-center"  aria-labelledby="dropdownMenuButton" >
+  <img alt="" src="../imagenes/login.png" height="100" width="100" align="center">
+  <a class="dropdown-item" href="#">${name}</a>
+      <a class="dropdown-item" href="#">${apellido}</a>
+    <a class="dropdown-item" href="#">${usuario}</a>
+    <a class="dropdown-item" href="#">${nombre}</a>
+<div class="dropdown-divider"></div>
+	<form action="">
+		<button name="accion" class="dropdown-item" href="#">Salir</button> 
+	</form>
+  </div>
   </div>
 </nav>
 <form action="/PracticaJSPYJEE/ListTelefonoServlet"  method="post">
