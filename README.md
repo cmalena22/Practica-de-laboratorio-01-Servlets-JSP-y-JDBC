@@ -736,3 +736,905 @@ public class ModificarTelefonoServlet extends HttpServlet {
 
 }
 
+Paquete de Bases de datos
+
+ContextJDBC.java
+
+package ec.ups.edu.base;
+
+import java.sql.Connection;
+
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class ContextJDBC {
+	
+		private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+		private static final String URL = "jdbc:mysql://localhost:3306/guia";
+		private static final String USER = "root";
+		private static final String PASS = "admin";
+		private static ContextJDBC jdbc1 = null;
+		private static ContextJDBC jdbc2 = null;
+		private Statement statement = null;
+
+		public ContextJDBC() {
+			this.connect();
+		}
+
+		/**
+		 * Método connect.
+		 * 
+		 * Realiza una conexión a la base de datos a través de jdbc
+		 */
+		public void connect() {
+			try {
+				Class.forName(DRIVER);
+				Connection connection = DriverManager.getConnection(URL, USER, PASS);
+				this.statement = connection.createStatement();
+				
+				System.out.println("Conexion Exitosa");
+			} catch (ClassNotFoundException e) {
+				System.out.println(">>>WARNING (JDBC:connect)...problemas con el driver\n" + e.getMessage());
+			} catch (SQLException e) {
+				System.out.println(">>>WARNING (JDBC:connect)...problemas con la BD\n" + e.getMessage());
+			}
+		}
+
+		/**
+		 * Método query.
+		 * 
+		 * Realiza una sentencia SELECT a la base de datos.
+		 */
+		public ResultSet query(String sql) {
+			try {
+				return this.statement.executeQuery(sql);
+			} catch (SQLException e) {
+				System.out.println(">>>WARNING (JDBC mala sentencia:query): ---" + sql + "---" + e);
+			}
+			return null;
+		}
+
+		/**
+		 * Método update.
+		 * 
+		 * Realiza una sentencia INSERT, UDPDATE, DELETE, CREATE, entre otras a la base
+		 * de datos.
+		 */
+		public boolean update(String sql) {
+			try {
+				this.statement.executeUpdate(sql);
+				return true;
+			} catch (SQLException e) {
+				System.out.println(">>>WARNING (JDBC:update)... actualizacion: ---" + sql + "---" + e);
+				return false;
+			}
+		}
+
+		/**
+		 * Método getJDBC.
+		 * 
+		 * Obtiene una conexión activa a la base de datos
+		 * 
+		 * @return jdbc
+		 */
+		protected static ContextJDBC getJDBC1() {
+			// creación de la conexión a la base de datos solo si no ha sido creada patrón
+			// de diseño singleton
+			if (jdbc1 == null) {
+				jdbc1 = new ContextJDBC();
+			}
+			return jdbc1;
+
+		}
+
+		/**
+		 * Método getJDBC.
+		 * 
+		 * Obtiene una conexión activa a la base de datos
+		 * 
+		 * @return jdbc
+		 */
+		protected static ContextJDBC getJDBC2() {
+			// creación de la conexión a la base de datos solo si no ha sido creada patrón
+			// de diseño singleton
+			if (jdbc2 == null) {
+				jdbc2 = new ContextJDBC();
+			}
+			return jdbc2;
+
+		}
+	
+	
+	
+}
+
+
+JDBCGenericDao.java
+
+package ec.ups.edu.base;
+
+import ec.ups.edu.controlador.GenericDAO;
+
+public abstract class JDBCGenericDAO <T, ID> implements GenericDAO<T, ID> {
+	protected ContextJDBC conexionUno = ContextJDBC.getJDBC1();
+	protected ContextJDBC conexionDos = ContextJDBC.getJDBC2();
+}
+
+JDBCPersonaDao.java
+package ec.ups.edu.base;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import ec.edu.ups.modelo.Telefono;
+import ec.edu.ups.modelo.Usuario;
+import ec.ups.edu.controlador.DAOFactory;
+import ec.ups.edu.controlador.PersonaDAO;
+
+public class JDBCPersonaDAO extends JDBCGenericDAO<Usuario, Integer> implements PersonaDAO {
+	
+	@Override
+	public void createTable() {
+	
+	}
+
+	@Override
+	public void create(Usuario usuario) {
+		// TODO Auto-generated method stub
+		conexionUno.update("INSERT Usuario VALUES (" +" '" + usuario.getCedula() + "'" +", '" + usuario.getNombre() + "', '" + usuario.getApellido()
+		+ "', '" + usuario.getCorreo() +  "', '" + usuario.getContrasenia() + "')");
+	
+
+	}
+
+	@Override
+	public Usuario read(String id) {
+		Usuario user = null;
+		ResultSet rs = conexionUno.query("SELECT * FROM Usuario ");
+		try {
+			if (rs != null && rs.next()) {
+				user = new Usuario(rs.getString("cedula"), rs.getString("nombre"), rs.getString("apellido"), rs.getString("correo"), rs.getString("contrasena"));
+				System.out.println(user.toString());
+			}
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCUserDAO:read): " + e.getMessage());
+		}
+		
+		return user;
+	}
+
+	@Override
+	public void update(Usuario usuario) {
+		conexionUno.update("UPDATE Usuario SET nombre = '" + usuario.getNombre() + "',apellido = '" + usuario.getApellido()+"'"
+	+ " WHERE cedula = " + usuario.getCedula());
+		
+		System.out.println(usuario.toString());
+		
+	}
+
+	@Override
+	public void delete(Usuario entity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<Usuario> find() {
+		// TODO Auto-generated method stub
+		List<Usuario> list = new ArrayList<Usuario>();
+		ResultSet rs = conexionUno.query("SELECT * FROM usuario");
+		try {
+			while (rs.next()) {
+			
+			Usuario usuario = new Usuario(rs.getString("cedula"), rs.getString("nombre")
+					,rs.getString("apellido"), rs.getString("correo"), rs.getString("contrasena"));
+				
+				System.out.println(usuario.toString());
+				list.add(usuario);
+			}
+
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCPersonaDAO:find): " + e.getMessage());
+		}
+		return list;
+	}
+	@Override
+	public Usuario validar(String correo,String contra) {
+		Usuario user= new Usuario();
+		
+		ResultSet rs = conexionUno.query("SELECT * FROM usuario where correo='"+correo+"'and contrasena='"+contra+"'");
+		try {
+			while (rs.next()) {
+				user.setCorreo(rs.getString("correo"));
+				user.setContrasenia(rs.getString("contrasena"));
+				user.setCedula(rs.getString("cedula"));
+				user.setNombre(rs.getString("nombre"));
+				user.setNombre(rs.getString("apellido"));
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return user;
+	
+	}
+	@Override
+	public Usuario recuperar(String id) {
+		Usuario user = null;
+		ResultSet rs = conexionUno.query("SELECT * FROM Usuario where cedula='"+ id+"'" );
+		try {
+			if (rs != null && rs.next()) {
+				user = new Usuario(rs.getString("cedula"), rs.getString("nombre"), rs.getString("apellido"), rs.getString("correo"), rs.getString("contrasena"));
+				System.out.println(user.toString());
+			}
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCUserDAO:read): " + e.getMessage());
+		}
+		
+		return user;
+	}
+
+	
+	
+	
+	
+	
+}
+
+JDBCTelefonoDao.java
+package ec.ups.edu.base;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import javax.sound.midi.Soundbank;
+
+import ec.edu.ups.modelo.Telefono;
+import ec.edu.ups.modelo.Usuario;
+import ec.ups.edu.controlador.TelefonoDAO;
+
+public class JDBCTelefonoDAO extends JDBCGenericDAO<Telefono, Integer> implements TelefonoDAO {
+
+	@Override
+	public void createTable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void create(Telefono telefono) {
+		conexionDos.update("INSERT Telefono VALUES (" + telefono.getCodigo() 
+		+ ", '" + telefono.getNumero()+ " '" 
+		+ ", '" +telefono.getTipo()+ "' "
+		+ ", '"	+telefono.getOperadora()+ "' "
+		+ ", '"+telefono.getUsuario_cedula().getCedula() + "')");
+		System.out.println(telefono.toString());
+		
+
+	}
+
+	
+	
+
+	@Override
+	public void update(Telefono telefono) {
+		// TODO Auto-generated method stub
+		conexionDos.update("UPDATE Telefono SET  numero = '" + telefono.getNumero() + "',tipo = '"
+														    	+telefono.getTipo() +"',operadora='"	
+														    	+telefono.getOperadora()
+														+ "' WHERE id = " + telefono.getCodigo());
+		System.out.println("update telefono"+telefono.toString());
+	}
+
+	@Override
+	public void delete(Telefono telefono) {
+		// TODO Auto-generated method stub
+		conexionDos.update("DELETE FROM Telefono WHERE numero = " + telefono.getNumero());
+		System.out.println("eliminado telefono:");
+	}
+
+	@Override
+	public List<Telefono> find() {
+		List<Telefono> list = new ArrayList<Telefono>();
+		ResultSet rstelefono = conexionUno.query("SELECT * FROM telefono");
+		try {
+			while (rstelefono.next()) {
+				Telefono tel = new Telefono(rstelefono.getInt("id"), rstelefono.getString("numero"),
+						rstelefono.getString("tipo"),rstelefono.getString("operadora"));
+				ResultSet rsUsuario = conexionDos
+						.query("SELECT * FROM Usuario WHERE cedula=" + rstelefono.getString("Usuario_cedula"));
+
+				if (rsUsuario != null && rsUsuario.next()) {
+					
+					Usuario usu = new Usuario(rsUsuario.getString("cedula"),rsUsuario.getString("nombre"),rsUsuario.getString("apellido")
+							,rsUsuario.getString("correo"),rsUsuario.getString("contrasena"));
+					tel.setUsuario_cedula(usu);
+				}
+				list.add(tel);
+				System.out.println(list.toString());
+			}
+
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCProductDAO:find): " + e.getMessage());
+		}
+
+		return list;
+	}
+
+	@Override
+	public Telefono read(String id) {
+		// TODO Auto-generated method stub
+		Telefono telefono = null;
+		ResultSet rstelefono = conexionUno.query("SELECT * FROM Telefono WHERE Usuario_cedula=" + id);
+		try {
+			if (rstelefono != null && rstelefono.next()) {
+				telefono = new Telefono(rstelefono.getInt("id"), rstelefono.getString("numero"),
+						rstelefono.getString("tipo"),rstelefono.getString("operadora"));
+				ResultSet rsusuario = conexionDos.query("SELECT * FROM Usuario WHERE cedula=" + rstelefono.getString("Usuario_cedula"));
+
+				if (rsusuario != null && rsusuario.next()) {
+					Usuario usuario = new Usuario(rsusuario.getString("cedula"),rsusuario.getString("numero"),rsusuario.getString("apellido"), rsusuario.getString("correo"), rsusuario.getString("contrasena"));
+					telefono.setUsuario_cedula(usuario);
+				}
+				System.out.println(telefono.toString());
+
+			}
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCTelefonoDAO:read): " + e.getMessage());
+		}
+		if (telefono == null) {
+			return null;
+		}
+		return telefono;
+	}
+
+	
+
+
+	@Override
+	public List<Telefono>  findbyUserId(String cedula) {
+		List<Telefono> list = new ArrayList<Telefono>();;
+		ResultSet rstelefono = conexionUno.query("SELECT * FROM Telefono WHERE Usuario_cedula=" + cedula);
+		try {
+			while (rstelefono.next()) {
+				Telefono tel = new Telefono(rstelefono.getInt("id"), rstelefono.getString("numero"),
+						rstelefono.getString("tipo"),rstelefono.getString("operadora"));
+				ResultSet rsUsuario = conexionDos
+						.query("SELECT * FROM Usuario WHERE cedula=" + rstelefono.getString("Usuario_cedula"));
+
+				if (rsUsuario != null && rsUsuario.next()) {
+					
+					Usuario usu = new Usuario(rsUsuario.getString("cedula"),rsUsuario.getString("nombre"),rsUsuario.getString("apellido")
+							,rsUsuario.getString("correo"),rsUsuario.getString("contrasena"));
+					tel.setUsuario_cedula(usu);
+				}
+				list.add(tel);
+				System.out.println(list.toString());
+			}
+			
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCUserDetailDAO:findByUserId): " + e.getMessage());
+		}
+		return list;
+	
+	}
+	
+		
+}
+Paquete vista
+
+package ec.ups.edu.base;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import javax.sound.midi.Soundbank;
+
+import ec.edu.ups.modelo.Telefono;
+import ec.edu.ups.modelo.Usuario;
+import ec.ups.edu.controlador.TelefonoDAO;
+
+public class JDBCTelefonoDAO extends JDBCGenericDAO<Telefono, Integer> implements TelefonoDAO {
+
+	@Override
+	public void createTable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void create(Telefono telefono) {
+		conexionDos.update("INSERT Telefono VALUES (" + telefono.getCodigo() 
+		+ ", '" + telefono.getNumero()+ " '" 
+		+ ", '" +telefono.getTipo()+ "' "
+		+ ", '"	+telefono.getOperadora()+ "' "
+		+ ", '"+telefono.getUsuario_cedula().getCedula() + "')");
+		System.out.println(telefono.toString());
+		
+
+	}
+
+	
+	
+
+	@Override
+	public void update(Telefono telefono) {
+		// TODO Auto-generated method stub
+		conexionDos.update("UPDATE Telefono SET  numero = '" + telefono.getNumero() + "',tipo = '"
+														    	+telefono.getTipo() +"',operadora='"	
+														    	+telefono.getOperadora()
+														+ "' WHERE id = " + telefono.getCodigo());
+		System.out.println("update telefono"+telefono.toString());
+	}
+
+	@Override
+	public void delete(Telefono telefono) {
+		// TODO Auto-generated method stub
+		conexionDos.update("DELETE FROM Telefono WHERE numero = " + telefono.getNumero());
+		System.out.println("eliminado telefono:");
+	}
+
+	@Override
+	public List<Telefono> find() {
+		List<Telefono> list = new ArrayList<Telefono>();
+		ResultSet rstelefono = conexionUno.query("SELECT * FROM telefono");
+		try {
+			while (rstelefono.next()) {
+				Telefono tel = new Telefono(rstelefono.getInt("id"), rstelefono.getString("numero"),
+						rstelefono.getString("tipo"),rstelefono.getString("operadora"));
+				ResultSet rsUsuario = conexionDos
+						.query("SELECT * FROM Usuario WHERE cedula=" + rstelefono.getString("Usuario_cedula"));
+
+				if (rsUsuario != null && rsUsuario.next()) {
+					
+					Usuario usu = new Usuario(rsUsuario.getString("cedula"),rsUsuario.getString("nombre"),rsUsuario.getString("apellido")
+							,rsUsuario.getString("correo"),rsUsuario.getString("contrasena"));
+					tel.setUsuario_cedula(usu);
+				}
+				list.add(tel);
+				System.out.println(list.toString());
+			}
+
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCProductDAO:find): " + e.getMessage());
+		}
+
+		return list;
+	}
+
+	@Override
+	public Telefono read(String id) {
+		// TODO Auto-generated method stub
+		Telefono telefono = null;
+		ResultSet rstelefono = conexionUno.query("SELECT * FROM Telefono WHERE Usuario_cedula=" + id);
+		try {
+			if (rstelefono != null && rstelefono.next()) {
+				telefono = new Telefono(rstelefono.getInt("id"), rstelefono.getString("numero"),
+						rstelefono.getString("tipo"),rstelefono.getString("operadora"));
+				ResultSet rsusuario = conexionDos.query("SELECT * FROM Usuario WHERE cedula=" + rstelefono.getString("Usuario_cedula"));
+
+				if (rsusuario != null && rsusuario.next()) {
+					Usuario usuario = new Usuario(rsusuario.getString("cedula"),rsusuario.getString("numero"),rsusuario.getString("apellido"), rsusuario.getString("correo"), rsusuario.getString("contrasena"));
+					telefono.setUsuario_cedula(usuario);
+				}
+				System.out.println(telefono.toString());
+
+			}
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCTelefonoDAO:read): " + e.getMessage());
+		}
+		if (telefono == null) {
+			return null;
+		}
+		return telefono;
+	}
+
+	
+
+
+	@Override
+	public List<Telefono>  findbyUserId(String cedula) {
+		List<Telefono> list = new ArrayList<Telefono>();;
+		ResultSet rstelefono = conexionUno.query("SELECT * FROM Telefono WHERE Usuario_cedula=" + cedula);
+		try {
+			while (rstelefono.next()) {
+				Telefono tel = new Telefono(rstelefono.getInt("id"), rstelefono.getString("numero"),
+						rstelefono.getString("tipo"),rstelefono.getString("operadora"));
+				ResultSet rsUsuario = conexionDos
+						.query("SELECT * FROM Usuario WHERE cedula=" + rstelefono.getString("Usuario_cedula"));
+
+				if (rsUsuario != null && rsUsuario.next()) {
+					
+					Usuario usu = new Usuario(rsUsuario.getString("cedula"),rsUsuario.getString("nombre"),rsUsuario.getString("apellido")
+							,rsUsuario.getString("correo"),rsUsuario.getString("contrasena"));
+					tel.setUsuario_cedula(usu);
+				}
+				list.add(tel);
+				System.out.println(list.toString());
+			}
+			
+		} catch (SQLException e) {
+			System.out.println(">>>WARNING (JDBCUserDetailDAO:findByUserId): " + e.getMessage());
+		}
+		return list;
+	
+	}
+	
+		
+}
+
+Paquete de JSPS	
+Eliminar Telefono
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Eliminar Telefono</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+	integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+	crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+	integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+	integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+	crossorigin="anonymous"></script>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+	integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+	crossorigin="anonymous"></script>
+<script type="text/javascript" src="../css/Validar Formularios.js" ></script>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="#">Bienvenido</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarNav" aria-controls="navbarNav"
+			aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav">
+				<li class="nav-item active"><a class="nav-link"
+					href="/PracticaJSPYJEE/EliminarTelefonoSErvlet?accion=Listar">Listar
+						Telefono</a></li>
+				<li class="nav-item"><a class="nav-link"
+					href="/PracticaJSPYJEE/EliminarTelefonoSErvlet?accion=Modificar">Modificar
+						Telefono</a></li>
+				<li class="nav-item"><a class="nav-link"
+					href="/PracticaJSPYJEE/EliminarTelefonoSErvlet?accion=Registrar">Registrar
+						Telefono</a></li>
+			</ul>
+			<div class="dropdown">
+				<button style="border: none;"
+					class="btn btn-outline-dark dropdown-toggle" type="button"
+					id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+					aria-expanded="false">${usuario}</button>
+
+				<div class="dropdown-menu text-center"
+					aria-labelledby="dropdownMenuButton">
+					<img alt="" src="../imagenes/login.png" height="100" width="100"
+						align="center"> <a class="dropdown-item" href="#">${name}</a>
+					<a class="dropdown-item" href="#">${apellido}</a> <a
+						class="dropdown-item" href="#">${usuario}</a> <a
+						class="dropdown-item" href="#">${nombre}</a>
+					<div class="dropdown-divider"></div>
+					<form action="/PracticaJSPYJEE/CerrarSesionServlet" method="get">
+
+						<input type="submit" id="crear" value="Salir" name="accion" />
+					</form>
+				</div>
+			</div>
+	</nav>
+	<br>
+	<div class="container col-lg-3">
+	<h1>Formulario</h1>
+	<form id="formulario01" method="POST"
+		action="/PracticaJSPYJEE/EliminarTelefonoSErvlet">
+		
+		<input type="hidden" id="codigo" name="codigo" value="" /> <label
+			for="numero">Numero:(*)</label> <input type="text" id="id" name="id"
+			placeholder="Ingrese el numero" class="form-control" onkeypress="return validarNumeroo(event, this)" required="required"/> <br> 
+			<input type="submit" id="eliminar" name="accion" value="Eliminar" class="btn btn-default" />
+			
+	</form>
+	</div>
+</body>
+</html>
+Listar Telefono
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    <%@ taglib prefix= "c"  uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Listar Telefono</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Bienvenido</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item active">
+        <a class="nav-link" href="/PracticaJSPYJEE/ListTelefonoServlet?accion=Registrar" >Insertar Telefono</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/PracticaJSPYJEE/ListTelefonoServlet?accion=Modificar">Modificar Telefono</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="/PracticaJSPYJEE/ListTelefonoServlet?accion=Eliminar">Eliminar Telefono</a>
+      </li>     
+    </ul>
+     <div class="dropdown">
+  <button style="border: none;" class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+   ${usuario}
+  </button>
+  
+  <div class="dropdown-menu text-center"  aria-labelledby="dropdownMenuButton" >
+  <img alt="" src="../imagenes/login.png" height="100" width="100" align="center">
+  <a class="dropdown-item" href="#">${name}</a>
+      <a class="dropdown-item" href="#">${apellido}</a>
+    <a class="dropdown-item" href="#">${usuario}</a>
+    <a class="dropdown-item" href="#">${nombre}</a>
+<div class="dropdown-divider"></div>
+<form action="/PracticaJSPYJEE/CerrarSesionServlet" method="get">		
+		   <input type="submit" id="crear" value="Salir" name="accion"/>
+	</form>
+  </div>
+  </div>
+</nav>
+<form action="/PracticaJSPYJEE/ListTelefonoServlet"  method="post">
+ <input class="btn btn-danger btn block" type="submit" name="accion" value="Listar"> 
+ <input id="cedula" name="cedula" type="hidden" value="${nombre}">
+ </form>
+ 	<div >
+ 		<table class="table table-hover">
+ 		<thead>
+ 			<tr>
+ 			 <th> ID</th>
+			    <th> Numero</th>
+ 				<th> Tipo</th>
+				<th> Operadora </th>
+					<th> Cedula </th>
+				  </tr>
+  </thead>  
+  <tbody>  
+  <c:forEach var="tel" items="${telefono}">  
+  <tr>
+  <td>${tel.getCodigo()}</td>
+  	<td>${tel.getNumero()}</td>
+ 	<td>${tel.getTipo()}</td>
+ 	<td>${tel.getOperadora()}</td> 
+ 	<td>${tel.getUsuario_cedula().getCedula()}</td> 
+  </tr>
+ 
+  </c:forEach>
+  
+  
+  </tbody>
+ 
+ 
+ 
+ </table>
+ 
+ 
+ 
+ 
+ 
+ </div>
+</body>
+</html>
+Insertar Telefono
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Registrar Telefono</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+	integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+	crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+	integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+	integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+	crossorigin="anonymous"></script>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+	integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+	crossorigin="anonymous"></script>
+<script type="text/javascript" src="../css/Validar Formularios.js" ></script>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="#">Bienvenido</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarNav" aria-controls="navbarNav"
+			aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav">
+				<li class="nav-item active"><a class="nav-link"
+					href="/PracticaJSPYJEE/InsertarTelefonoServlet?accion=Listar">Listar
+						Telefono</a></li>
+				<li class="nav-item"><a class="nav-link"
+					href="/PracticaJSPYJEE/InsertarTelefonoServlet?accion=Modificar">Modificar
+						Telefono</a></li>
+				<li class="nav-item"><a class="nav-link"
+					href="/PracticaJSPYJEE/InsertarTelefonoServlet?accion=Eliminar">Eliminar
+						Telefono</a></li>
+
+			</ul>
+			<div class="dropdown">
+				<button style="border: none;"
+					class="btn btn-outline-dark dropdown-toggle" type="button"
+					id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+					aria-expanded="false">${usuario}</button>
+
+				<div class="dropdown-menu text-center"
+					aria-labelledby="dropdownMenuButton">
+					<img alt="" src="../imagenes/login.png" height="100" width="100"
+						align="center"> <a class="dropdown-item" href="#">${name}</a>
+					<a class="dropdown-item" href="#">${apellido}</a> <a
+						class="dropdown-item" href="#">${usuario}</a> <a
+						class="dropdown-item" href="#">${nombre}</a>
+					<div class="dropdown-divider"></div>
+					<form action="/PracticaJSPYJEE/CerrarSesionServlet" method="get">
+						<input type="submit" id="crear" value="Salir" name="accion" />
+					</form>
+				</div>
+			</div>
+	</nav>
+	<br>
+	<div class="container col-lg-3">
+	<h1>Formulario</h1>
+	<form action="/PracticaJSPYJEE/InsertarTelefonoServlet" method="post"
+		role="form">
+		<div class="form-group">
+		<label for="numero">Numero:</label>
+		<input type="text" id="numero"	name="numero" minlength="9" maxlength="10" class="form-control" required="required"  onkeypress="return validarNumeroo(event, this)" /> <br> 
+		<label
+			for="tipo">Tipo:</label> 
+		<input type="text" id="tipo" name="tipo" class="form-control" onkeyup="return validarLetras(this)" required="required" />
+		<br> 
+		<label for="operadora">Operadora:</label> 
+		<input type="text" id="operadora" name="operadora" class="form-control" onkeyup="return validarLetras(this)" required="required"/> <br> 
+		<input id="cedula" name="cedula" type="hidden" value="${nombre}"> <input
+			type="submit" id="crear" value="Ingresar" name="accion" class="btn btn-default"/>
+		
+		</div>
+		
+
+	</form>
+	
+	</div>
+</body>
+</html>
+Modificar Telefono
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Modificar Telefono</title>
+
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+	integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+	crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+	integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+	integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+	crossorigin="anonymous"></script>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+	integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+	crossorigin="anonymous"></script>
+<script type="text/javascript" src="../css/Validar Formularios.js" ></script>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="#">Bienvenido</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarNav" aria-controls="navbarNav"
+			aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav">
+				<li class="nav-item active"><a class="nav-link"
+					href="/PracticaJSPYJEE/ModificarTelefonoServlet?accion=Listar">Listar
+						Telefono</a></li>
+				<li class="nav-item"><a class="nav-link"
+					href="/PracticaJSPYJEE/ModificarTelefonoServlet?accion=Registrar">Registrar
+						Telefono</a></li>
+				<li class="nav-item"><a class="nav-link"
+					href="/PracticaJSPYJEE/ModificarTelefonoServlet?accion=Eliminar">Eliminar
+						Telefono</a></li>
+
+			</ul>
+			<div class="dropdown">
+				<button style="border: none;"
+					class="btn btn-outline-dark dropdown-toggle" type="button"
+					id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+					aria-expanded="false">${usuario}</button>
+
+				<div class="dropdown-menu text-center"
+					aria-labelledby="dropdownMenuButton">
+					<img alt="" src="../imagenes/login.png" height="100" width="100"
+						align="center"> <a class="dropdown-item" href="#">${name}</a>
+					<a class="dropdown-item" href="#">${apellido}</a> <a
+						class="dropdown-item" href="#">${usuario}</a> <a
+						class="dropdown-item" href="#">${nombre}</a>
+					<div class="dropdown-divider"></div>
+					<form action="/PracticaJSPYJEE/CerrarSesionServlet" method="get">
+
+						<input type="submit" id="crear" value="Salir" name="accion" />
+					</form>
+				</div>
+			</div>
+	</nav>
+	<br>
+	<div class="container col-lg-3">
+	<form method="POST" action="/PracticaJSPYJEE/ModificarTelefonoServlet"
+		role="form">
+<h1>Formulario</h1>
+		<label for="numero">Id:(*)</label> <input type="text" id="id"
+			name="id" placeholder="Ingrese el numero telefono ..."
+			class="form-control" onkeypress="return validarNumeroo(event, this)"/>
+			 <br> <label for="numero">Numero:(*)</label>
+		<input type="text" id="numerom" name="numerom" minlength="9"
+			maxlength="10" placeholder="Ingrese el numero telefono ..."
+			class="form-control"  onkeypress="return validarNumeroo(event, this)" /> 
+			<br> 
+			<a>${telefono}</a> <label
+			for="tipo">Tipo:(*)</label> <input type="text" id="tipom"
+			name="tipom" placeholder="Ingrese tipo de telefono ..."
+			class="form-control" required="required" onkeyup="return validarLetras(this)" /> 
+			<br> <label for="operadora">Operadora:(*)</label>
+		<input type="text" id="operadoram" name="operadoram"
+			placeholder="Ingrese la operadora ..." class="form-control" required="required" onkeyup="return validarLetras(this)" /> <br>
+		<input type="submit" id="modificar" name="accion" value="Modificar"
+			class="btn btn-default" />
+
+	</form>
+ </div>
+</body>
+</html>
+
+
+
