@@ -1,5 +1,5 @@
 # Practica-de-laboratorio-01-Servlets-JSP-y-JDBC
-En este programa se realiza un ejemplo del uso del patr髇 DAO para persistencia de informaci髇 en base de datos.
+En este programa se realiza un ejemplo del uso del patr贸n DAO para persistencia de informaci贸n en base de datos.
 
 versiones
 Eclipse=2020-03 (4.15.0)
@@ -10,17 +10,20 @@ MySQL_Java_Connector=8.0.19
 
 
 
-Instalaci髇
+Instalaci贸n
 Iniciar el servidor MySQL en el puerto 3306
 Crear una base de datos llamada db_test
-Actualizar los datos de conexi髇 en la clase ec.edu.ups.mysql.jdbc.ContextJDBC
+Actualizar los datos de conexi贸n en la clase ec.edu.ups.mysql.jdbc.ContextJDBC
 Ejecutar las pruebas que se encuentran en el paquete ec.edu.ups.test
 
 Diagrama de Clases
 
 
-https://raw.githubusercontent.com/cmalena22/Practica-de-laboratorio-01-Servlets-JSP-y-JDBC/master/assets/diagrama.png
+![diagrama](https://user-images.githubusercontent.com/46982373/81714566-d0305b00-943c-11ea-8c1d-84a6baed5467.png)
 
+Diagrama de Base de Datos
+![base](https://user-images.githubusercontent.com/46982373/81714729-fce47280-943c-11ea-958b-e63bed47bfa4.png)
+v
 
 Paquete modelo
 
@@ -764,9 +767,9 @@ public class ContextJDBC {
 		}
 
 		/**
-		 * M閠odo connect.
+		 * M茅todo connect.
 		 * 
-		 * Realiza una conexi髇 a la base de datos a trav閟 de jdbc
+		 * Realiza una conexi贸n a la base de datos a trav茅s de jdbc
 		 */
 		public void connect() {
 			try {
@@ -783,7 +786,7 @@ public class ContextJDBC {
 		}
 
 		/**
-		 * M閠odo query.
+		 * M茅todo query.
 		 * 
 		 * Realiza una sentencia SELECT a la base de datos.
 		 */
@@ -797,7 +800,7 @@ public class ContextJDBC {
 		}
 
 		/**
-		 * M閠odo update.
+		 * M茅todo update.
 		 * 
 		 * Realiza una sentencia INSERT, UDPDATE, DELETE, CREATE, entre otras a la base
 		 * de datos.
@@ -813,15 +816,15 @@ public class ContextJDBC {
 		}
 
 		/**
-		 * M閠odo getJDBC.
+		 * M茅todo getJDBC.
 		 * 
-		 * Obtiene una conexi髇 activa a la base de datos
+		 * Obtiene una conexi贸n activa a la base de datos
 		 * 
 		 * @return jdbc
 		 */
 		protected static ContextJDBC getJDBC1() {
-			// creaci髇 de la conexi髇 a la base de datos solo si no ha sido creada patr髇
-			// de dise駉 singleton
+			// creaci贸n de la conexi贸n a la base de datos solo si no ha sido creada patr贸n
+			// de dise帽o singleton
 			if (jdbc1 == null) {
 				jdbc1 = new ContextJDBC();
 			}
@@ -830,15 +833,15 @@ public class ContextJDBC {
 		}
 
 		/**
-		 * M閠odo getJDBC.
+		 * M茅todo getJDBC.
 		 * 
-		 * Obtiene una conexi髇 activa a la base de datos
+		 * Obtiene una conexi贸n activa a la base de datos
 		 * 
 		 * @return jdbc
 		 */
 		protected static ContextJDBC getJDBC2() {
-			// creaci髇 de la conexi髇 a la base de datos solo si no ha sido creada patr髇
-			// de dise駉 singleton
+			// creaci贸n de la conexi贸n a la base de datos solo si no ha sido creada patr贸n
+			// de dise帽o singleton
 			if (jdbc2 == null) {
 				jdbc2 = new ContextJDBC();
 			}
