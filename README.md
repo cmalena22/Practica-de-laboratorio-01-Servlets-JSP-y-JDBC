@@ -21,7 +21,16 @@ Diagrama de Clases
 
 ![diagrama](https://user-images.githubusercontent.com/46982373/81714566-d0305b00-943c-11ea-8c1d-84a6baed5467.png)
 
+
+
+
+
+
 Diagrama de Base de Datos
+
+
+
+
 ![base](https://user-images.githubusercontent.com/46982373/81714729-fce47280-943c-11ea-958b-e63bed47bfa4.png)
 v
 
